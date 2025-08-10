@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  api:
+    image: ghcr.io/${GHCR_OWNER}/aibloger-api:${IMAGE_TAG}
+    restart: unless-stopped
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+networks:
+  default:
+    name: aibloger-net
+    driver: bridge
+
+
