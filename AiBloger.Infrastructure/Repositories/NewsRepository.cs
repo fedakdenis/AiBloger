@@ -16,7 +16,16 @@ public class NewsRepository : INewsRepository
 
     public async Task<int> AddBatchAsync(IEnumerable<NewsItem> items)
     {
+        var urls = items.Select(x => x.Url).Distinct().ToList();
+        var urlDublicates = await _context.NewsItems
+            .Where(x => urls.Contains(x.Url))
+            .Select(x => x.Url)
+            .Distinct()
+            .ToHashSetAsync();
+        
         var itemsBySources = items
+            .Where(x => !urlDublicates.Contains(x.Url))
+            .DistinctBy(x => x.Url)
             .GroupBy(
                 n => n.Source,
                 x => x,
