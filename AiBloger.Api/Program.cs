@@ -17,6 +17,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Health checks with DB context
+builder.Services.AddHealthChecks();
+
 // Add DbContext with PostgreSQL
 builder.Services.AddDbContext<NewsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -117,11 +120,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors("AllowAll");
 
 app.UseAuthorization();
+
+// Map health endpoint
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 
