@@ -131,12 +131,13 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<NewsDbContext>();
     try
     {
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
         Console.WriteLine("Database created/verified successfully");
     }
     catch (Exception ex)
     {
         Console.WriteLine($"Error creating database: {ex.Message}");
+        throw;
     }
 }
 
