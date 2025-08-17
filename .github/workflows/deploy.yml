@@ -18,7 +18,8 @@ jobs:
       - name: Add host to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.DROPLET_HOST }}" >> ~/.ssh/known_hosts
+          
       - name: Deploy via SSH
         run: |
           apk add --no-cache openssh sshpass >/dev/null 2>&1 || sudo apt-get update && sudo apt-get install -y openssh-client sshpass
