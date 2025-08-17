@@ -27,7 +27,6 @@ jobs:
           apk add --no-cache openssh sshpass >/dev/null 2>&1 || sudo apt-get update && sudo apt-get install -y openssh-client sshpass
           SSH_OPTS="-o StrictHostKeyChecking=yes"
           ssh $SSH_OPTS $SSH_USER@$SSH_HOST "mkdir -p /srv/aibloger"
-          ls
           scp $SSH_OPTS docker-compose.yml $SSH_USER@$SSH_HOST:/srv/aibloger/
         env:
           SSH_HOST: ${{ secrets.DROPLET_HOST }}
