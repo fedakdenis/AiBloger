@@ -2,8 +2,6 @@ name: deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, develop]
 
 jobs:
   deploy:
@@ -11,9 +9,20 @@ jobs:
     environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
     concurrency: deploy-${{ github.ref_name }}
     steps:
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.DROPLET_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
       - name: Deploy via SSH
         run: |
           apk add --no-cache openssh sshpass >/dev/null 2>&1 || sudo apt-get update && sudo apt-get install -y openssh-client sshpass
+          ssh -o StrictHostKeyChecking=yes $SSH_USER@$SSH_HOST 'docker --version'
           SSH_OPTS="-o StrictHostKeyChecking=no"
           ssh $SSH_OPTS -i <(echo "$SSH_KEY") $SSH_USER@$SSH_HOST "mkdir -p /srv/aibloger"
         env:
