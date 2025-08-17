@@ -1,6 +1,6 @@
 using Quartz;
 using Microsoft.Extensions.Options;
-using MediatR;
+using AiBloger.Core.Mediator;
 using AiBloger.Api.Configuration;
 using AiBloger.Core.Commands;
 

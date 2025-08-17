@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using AiBloger.Core.Entities;
 using AiBloger.Core.Interfaces;
-using MediatR;
+using AiBloger.Core.Mediator;
 using AiBloger.Core.Commands;
 
 namespace AiBloger.Api.Controllers;

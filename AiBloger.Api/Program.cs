@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MediatR;
+using AiBloger.Core.Mediator;
 using Quartz;
 using AiBloger.Infrastructure.Data;
 using AiBloger.Infrastructure.Repositories;
@@ -24,11 +24,12 @@ builder.Services.AddHealthChecks();
 builder.Services.AddDbContext<NewsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register repositories and MediatR
+// Register repositories and Mediator
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(AiBloger.Core.AssemblyAnchor).Assembly));
-
+builder.Services.AddScoped<IMediator, Mediator>();
+// Register handlers explicitly
+builder.Services.RegisterCommandHandlers();
 // Scraper settings
 builder.Services.Configure<NewsScraperOptions>(builder.Configuration.GetSection("NewsScraper"));
 

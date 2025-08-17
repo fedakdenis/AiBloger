@@ -1,6 +1,6 @@
 using AiBloger.Core.Entities;
 using AiBloger.Core.Interfaces;
-using MediatR;
+using AiBloger.Core.Mediator;
 using Microsoft.Extensions.Logging;
 using AiBloger.Core.Commands;
 

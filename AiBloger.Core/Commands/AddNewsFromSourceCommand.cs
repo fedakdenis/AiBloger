@@ -1,4 +1,4 @@
-using MediatR;
+using AiBloger.Core.Mediator;
 
 namespace AiBloger.Core.Commands;
 
