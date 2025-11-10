@@ -7,6 +7,10 @@ using AiBloger.Infrastructure.Services;
 using AiBloger.Core.Interfaces;
 using AiBloger.Api.Configuration;
 using AiBloger.Api.Jobs;
+using AiBloger.Api.Queries;
+using AiBloger.Core.Entities;
+using AiBloger.Core.Queries;
+using AiBloger.Core.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +34,9 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IMediator, Mediator>();
 // Register handlers explicitly
 builder.Services.RegisterCommandHandlers();
+// Register API query handlers
+builder.Services.AddScoped<IRequestHandler<GetQuartzJobsQuery, IReadOnlyList<QuartzJobInfo>>, GetQuartzJobsQueryHandler>();
+builder.Services.AddScoped<IRequestHandler<GetNewsQuery, IReadOnlyList<NewsItem>>, GetNewsQueryHandler>();
 // Scraper settings
 builder.Services.Configure<NewsScraperOptions>(builder.Configuration.GetSection("NewsScraper"));
 

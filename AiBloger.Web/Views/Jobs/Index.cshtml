@@ -1,0 +1,56 @@
+@model IReadOnlyList<AiBloger.Core.Queries.QuartzJobInfo>
+@{
+	ViewData["Title"] = "Jobs";
+}
+<style>
+	.job { border: 1px solid #ddd; padding: 12px; margin: 12px 0; border-radius: 6px; }
+	.meta { color: #666; font-size: 0.9em; }
+	.triggers { margin-top: 8px; }
+	.trigger { padding: 6px 8px; border-left: 3px solid #ccc; margin: 6px 0; background: #fafafa; }
+	code { background: #f0f0f0; padding: 0 4px; border-radius: 3px; }
+</style>
+<h1>Quartz Jobs</h1>
+
+@if (Model == null || Model.Count == 0)
+{
+	<p>No jobs available.</p>
+}
+else
+{
+	foreach (var job in Model)
+	{
+		<div class="job">
+			<div><strong>@job.Name</strong> <span class="meta">(@job.Group)</span></div>
+			@if (!string.IsNullOrWhiteSpace(job.Description))
+			{
+				<div class="meta">@job.Description</div>
+			}
+			<div class="meta">
+				Last run: @(job.LastFireTimeUtc.HasValue ? job.LastFireTimeUtc.Value.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture) : "—")
+				&nbsp;|&nbsp;
+				Next run: @(job.NextFireTimeUtc.HasValue ? job.NextFireTimeUtc.Value.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture) : "—")
+			</div>
+
+			@if (job.Triggers != null && job.Triggers.Count > 0)
+			{
+				<div class="triggers">
+					<div><strong>Triggers:</strong></div>
+					@foreach (var trg in job.Triggers)
+					{
+						<div class="trigger">
+							<div><strong>@trg.Name</strong> <span class="meta">(@trg.Group)</span></div>
+							<div class="meta">
+								Type: <code>@trg.Type</code> &nbsp;|&nbsp; State: <code>@trg.State</code>
+							</div>
+							<div class="meta">
+								Last: @(trg.LastFireTimeUtc.HasValue ? trg.LastFireTimeUtc.Value.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture) : "—")
+								&nbsp;|&nbsp;
+								Next: @(trg.NextFireTimeUtc.HasValue ? trg.NextFireTimeUtc.Value.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture) : "—")
+							</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+	}
+}

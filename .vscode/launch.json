@@ -25,6 +25,25 @@
             }
         },
         {
+            "name": "Launch AiBloger.Web",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-web",
+            "program": "${workspaceFolder}/AiBloger.Web/bin/Debug/net8.0/AiBloger.Web.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/AiBloger.Web",
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7002;http://localhost:5002"
+            },
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            }
+        },
+        {
             "name": "Update Database",
             "type": "coreclr",
             "request": "launch",
@@ -41,6 +60,16 @@
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "stopAtEntry": false
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Launch All",
+            "configurations": [
+                "Launch AiBloger.Api",
+                "Launch AiBloger.Web"
+            ],
+            "stopAll": true
         }
     ]
 }
