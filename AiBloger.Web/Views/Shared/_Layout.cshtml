@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>@(ViewData["Title"] ?? "AiBloger")</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<style>
+		body { font-family: sans-serif; margin: 0; }
+		header { background: #1f2937; color: #fff; padding: 12px 20px; }
+		header a { color: #fff; text-decoration: none; margin-right: 12px; }
+		header a:hover { text-decoration: underline; }
+		main { padding: 20px; }
+		.container { max-width: 1100px; margin: 0 auto; }
+	</style>
+</head>
+<body>
+	<header>
+		<div class="container">
+			<a href="/"><strong>AiBloger</strong></a>
+			&nbsp;&nbsp;
+			<a href="/Jobs">Jobs</a>
+			<a href="/News">News</a>
+		</div>
+	</header>
+	<main>
+		<div class="container">
+			@RenderBody()
+		</div>
+	</main>
+</body>
+</html>
+
+
