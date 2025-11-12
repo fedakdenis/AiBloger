@@ -81,7 +81,8 @@ public class OpenAiResponseService : IAuthorService
     {
         if (_cachedSystemMessage == null)
         {
-            _cachedSystemMessage = await File.ReadAllTextAsync("system-message.txt");
+            var path = Path.Combine(AppContext.BaseDirectory, "system-message.txt");
+            _cachedSystemMessage = await File.ReadAllTextAsync(path);
         }
         return _cachedSystemMessage;
     }

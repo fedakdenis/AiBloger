@@ -1,0 +1,37 @@
+@model AiBloger.Core.Entities.PostInfo
+@{
+	ViewData["Title"] = "Post Preview";
+}
+<h1>Post Preview</h1>
+
+<form method="post">
+	<div>
+		<label>URL:</label>
+		<input type="url" name="url" value="" style="width: 420px;" required />
+	</div>
+	<div style="margin-top:8px;">
+		<label>Model:</label>
+		<input type="text" name="model" value="gpt-4o-mini" required />
+	</div>
+	<div style="margin-top:12px;">
+		<button type="submit">Generate</button>
+	</div>
+</form>
+
+@if (ViewData["Error"] is string err && !string.IsNullOrWhiteSpace(err))
+{
+	<p style="color:#b91c1c;">@err</p>
+}
+
+@if (Model != null)
+{
+	<hr />
+	<h2>@Model.Title</h2>
+	<pre style="white-space:pre-wrap; font-family:inherit;">@Model.Post</pre>
+	@if (!string.IsNullOrWhiteSpace(Model.Url))
+	{
+		<p>Source: <a href="@Model.Url" target="_blank" rel="noopener">@Model.Url</a></p>
+	}
+}
+
+

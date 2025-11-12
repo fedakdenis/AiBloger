@@ -11,6 +11,8 @@ using AiBloger.Core.Handlers;
 using AiBloger.Core.Queries;
 using AiBloger.Core.Entities;
 using AiBloger.Web.Handlers;
+using AiBloger.Infrastructure.Services;
+using AiBloger.Core.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,16 @@ builder.Services.AddScoped<INewsRepository, NewsRepository>();
 builder.Services.AddScoped<IMediator, Mediator>();
 builder.Services.AddScoped<IRequestHandler<GetNewsQuery, IReadOnlyList<NewsItem>>, GetNewsQueryHandler>();
 builder.Services.AddScoped<IRequestHandler<GetQuartzJobsQuery, IReadOnlyList<QuartzJobInfo>>, GetQuartzJobsFromApiHandler>();
+builder.Services.AddScoped<IRequestHandler<GeneratePostPreviewCommand, PostInfo>, GeneratePostPreviewCommandHandler>();
+builder.Services.AddScoped<IAuthorService>(provider =>
+{
+	var apiKey = builder.Configuration["OpenAI:ApiKey"];
+	if (string.IsNullOrWhiteSpace(apiKey))
+	{
+		throw new InvalidOperationException("OpenAI API key not found in configuration. Add 'OpenAI:ApiKey' to appsettings.json");
+	}
+	return new OpenAiResponseService(apiKey);
+});
 
 var app = builder.Build();
 
