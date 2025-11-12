@@ -11,7 +11,8 @@ public static class RegisterCommandHandlersExtensions
     {
         return services
             .AddScoped<IRequestHandler<AddNewsFromSourceCommand, int>, AddNewsFromSourceCommandHandler>()
-            .AddScoped<IRequestHandler<WriteNewPostCommand, PostInfo>, WriteNewPostCommandHandler>();
+            .AddScoped<IRequestHandler<WriteNewPostCommand, PostInfo>, WriteNewPostCommandHandler>()
+            .AddScoped<IRequestHandler<GeneratePostPreviewCommand, PostInfo>, GeneratePostPreviewCommandHandler>();
     }
 }
 
