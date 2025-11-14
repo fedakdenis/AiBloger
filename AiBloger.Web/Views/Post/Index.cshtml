@@ -1,4 +1,4 @@
-@model AiBloger.Core.Entities.PostInfo
+@model AiBloger.Web.Models.PostPreviewViewModel
 @{
 	ViewData["Title"] = "Post Preview";
 }
@@ -7,30 +7,44 @@
 <form method="post">
 	<div>
 		<label>URL:</label>
-		<input type="url" name="url" value="" style="width: 420px;" required />
+		<input type="url" name="Url" value="@Model?.Url" autocomplete="article_url" style="width: 420px;" required />
 	</div>
 	<div style="margin-top:8px;">
 		<label>Model:</label>
-		<input type="text" name="model" value="gpt-4o-mini" required />
+		<select name="Model" required>
+			@if (Model?.AvailableModels != null && Model.AvailableModels.Count > 0)
+			{
+				foreach (var m in Model.AvailableModels)
+				{
+					<option value="@m" selected="@(string.Equals(Model.Model, m, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@m</option>
+				}
+			}
+			else
+			{
+				<option value="gpt-4.1">gpt-4.1</option>
+				<option value="gpt-4o">gpt-4o</option>
+				<option value="gpt-4o-mini">gpt-4o-mini</option>
+			}
+		</select>
 	</div>
 	<div style="margin-top:12px;">
 		<button type="submit">Generate</button>
 	</div>
 </form>
 
-@if (ViewData["Error"] is string err && !string.IsNullOrWhiteSpace(err))
+@if (!string.IsNullOrWhiteSpace(Model?.Error))
 {
-	<p style="color:#b91c1c;">@err</p>
+	<p style="color:#b91c1c;">@Model.Error</p>
 }
 
-@if (Model != null)
+@if (Model?.Result != null)
 {
 	<hr />
-	<h2>@Model.Title</h2>
-	<pre style="white-space:pre-wrap; font-family:inherit;">@Model.Post</pre>
-	@if (!string.IsNullOrWhiteSpace(Model.Url))
+	<h2>@Model.Result.Title</h2>
+	<pre style="white-space:pre-wrap; font-family:inherit;">@Model.Result.Post</pre>
+	@if (!string.IsNullOrWhiteSpace(Model.Result.Url))
 	{
-		<p>Source: <a href="@Model.Url" target="_blank" rel="noopener">@Model.Url</a></p>
+		<p>Source: <a href="@Model.Result.Url" target="_blank" rel="noopener">@Model.Result.Url</a></p>
 	}
 }
 

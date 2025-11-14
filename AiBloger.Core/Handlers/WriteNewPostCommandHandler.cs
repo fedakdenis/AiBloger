@@ -31,16 +31,17 @@ public class WriteNewPostCommandHandler : IRequestHandler<WriteNewPostCommand, P
 
     public async Task<PostInfo> Handle(WriteNewPostCommand request, CancellationToken cancellationToken)
     {
+        const string defaultModel = "gpt-4.1";
         var latestNews = await _newsRepository.GetLatestNewsAsync(TimeSpan.FromHours(24));
         var latestTitles = latestNews.Select(x => new NewsTitle
         {
             Id = x.Id.ToString(),
             Title = x.Title
         }).ToList();
-        var bestTitles = await _openAiService.SelectBestTitlesAsync(latestTitles, 1);
+        var bestTitles = await _openAiService.SelectBestTitlesAsync(latestTitles, 1, defaultModel);
         var theBestTitleId = bestTitles.SelectedIds.First();
         var theBestNew = latestNews.First(x => x.Id == theBestTitleId);
-        var newPostInfo = await _openAiService.ProcessUrlAsync(theBestNew.Url);
+        var newPostInfo = await _openAiService.ProcessUrlAsync(theBestNew.Url, defaultModel);
         var newPost = new Post
         {
             Title = newPostInfo.Title,

@@ -9,7 +9,7 @@ namespace AiBloger.Infrastructure.Services;
 public class OpenAiResponseService : IAuthorService
 {
     private readonly OpenAIClient _client;
-    private readonly string _modelName = "gpt-4.1";
+    private readonly string _defaultModelName = "gpt-4.1";
     private string? _cachedSystemMessage;
 
     public OpenAiResponseService(string apiKey)
@@ -17,7 +17,7 @@ public class OpenAiResponseService : IAuthorService
         _client = new OpenAIClient(apiKey);
     }
 
-    public async Task<PostInfo> ProcessUrlAsync(string url)
+    public async Task<PostInfo> ProcessUrlAsync(string url, string model)
     {
         var systemMessage = await GetSystemMessageFromFileAsync();
         var userMessage = $"Analyze the article at this URL and create a post: {url}";
@@ -27,13 +27,14 @@ public class OpenAiResponseService : IAuthorService
             systemMessage, 
             userMessage, 
             jsonSchema, 
-            "post_info");
+            "post_info",
+            model);
 
         var postInfo = JsonSerializer.Deserialize<PostInfo>(response);
         return postInfo ?? new PostInfo { Title = "Error", Post = "Failed to process article", Url = url };
     }
 
-    public async Task<SelectedNews> SelectBestTitlesAsync(List<NewsTitle> titles, int top)
+    public async Task<SelectedNews> SelectBestTitlesAsync(List<NewsTitle> titles, int top, string model)
     {
         var systemMessage = GetSelectTitlesSystemMessage(top);
         var userMessage = CreateSelectTitlesUserMessage(titles);
@@ -43,7 +44,8 @@ public class OpenAiResponseService : IAuthorService
             systemMessage, 
             userMessage, 
             jsonSchema, 
-            "selected_news");
+            "selected_news",
+            model);
 
         var selectedNews = JsonSerializer.Deserialize<SelectedNews>(response);
         return selectedNews ?? new SelectedNews { SelectedIds = new List<int>() };
@@ -53,9 +55,11 @@ public class OpenAiResponseService : IAuthorService
         string systemMessage, 
         string userMessage, 
         string jsonSchema, 
-        string schemaName)
+        string schemaName,
+        string? model)
     {
-        var chatClient = _client.GetChatClient(_modelName);
+        var modelName = string.IsNullOrWhiteSpace(model) ? _defaultModelName : model;
+        var chatClient = _client.GetChatClient(modelName);
 
         // Add language instruction to system message
         systemMessage = $"{systemMessage}\n\nIMPORTANT: Respond in Russian language.";

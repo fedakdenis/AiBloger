@@ -16,8 +16,7 @@ public sealed class GeneratePostPreviewCommandHandler : IRequestHandler<Generate
 
     public async Task<PostInfo> Handle(GeneratePostPreviewCommand request, CancellationToken cancellationToken)
     {
-        // Note: Current IAuthorService does not accept model parameter; it's reserved for future use.
-        var info = await _authorService.ProcessUrlAsync(request.Url);
+        var info = await _authorService.ProcessUrlAsync(request.Url, request.Model);
         return info;
     }
 }
