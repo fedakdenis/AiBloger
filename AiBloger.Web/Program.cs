@@ -13,10 +13,12 @@ using AiBloger.Core.Entities;
 using AiBloger.Web.Handlers;
 using AiBloger.Infrastructure.Services;
 using AiBloger.Core.Commands;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
 
 // API client
 builder.Services.AddHttpClient<IQuartzSchedulerApi, QuartzSchedulerApi>(client =>
@@ -33,6 +35,17 @@ builder.Services.AddScoped<IMediator, Mediator>();
 builder.Services.AddScoped<IRequestHandler<GetNewsQuery, IReadOnlyList<NewsItem>>, GetNewsQueryHandler>();
 builder.Services.AddScoped<IRequestHandler<GetQuartzJobsQuery, IReadOnlyList<QuartzJobInfo>>, GetQuartzJobsFromApiHandler>();
 builder.Services.AddScoped<IRequestHandler<GeneratePostPreviewCommand, PostInfo>, GeneratePostPreviewCommandHandler>();
+builder.Services.AddScoped<IModelCatalog>(provider =>
+{
+	var apiKey = builder.Configuration["OpenAI:ApiKey"];
+	var cache = provider.GetRequiredService<IMemoryCache>();
+	var logger = provider.GetRequiredService<ILogger<OpenAIModelCatalog>>();
+	if (string.IsNullOrWhiteSpace(apiKey))
+	{
+		throw new InvalidOperationException("OpenAI API key not found in configuration. Add 'OpenAI:ApiKey' to appsettings.json");
+	}
+	return new OpenAIModelCatalog(apiKey, cache, logger);
+});
 builder.Services.AddScoped<IAuthorService>(provider =>
 {
 	var apiKey = builder.Configuration["OpenAI:ApiKey"];
