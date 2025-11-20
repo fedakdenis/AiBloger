@@ -31,12 +31,14 @@ builder.Services.AddDbContext<NewsDbContext>(options =>
 // Register repositories and Mediator
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<ISourceRepository, SourceRepository>();
 builder.Services.AddScoped<IMediator, Mediator>();
 // Register handlers explicitly
 builder.Services.RegisterCommandHandlers();
 // Register API query handlers
 builder.Services.AddScoped<IRequestHandler<GetQuartzJobsQuery, IReadOnlyList<QuartzJobInfo>>, GetQuartzJobsQueryHandler>();
 builder.Services.AddScoped<IRequestHandler<GetNewsQuery, IReadOnlyList<NewsItem>>, GetNewsQueryHandler>();
+builder.Services.AddScoped<IRequestHandler<GetSourcesQuery, IReadOnlyList<Source>>, GetSourcesQueryHandler>();
 // Scraper settings
 builder.Services.Configure<NewsScraperOptions>(builder.Configuration.GetSection("NewsScraper"));
 
@@ -75,7 +77,6 @@ builder.Services.AddScoped<IBlogerService>(provider =>
     return new TelegramService(botToken, chatId, logger);
 });
 
-var newsScraperOptions = builder.Configuration.GetSection("NewsScraper").Get<NewsScraperOptions>();
 // Configure Quartz
 builder.Services.AddQuartz(q =>
 {
