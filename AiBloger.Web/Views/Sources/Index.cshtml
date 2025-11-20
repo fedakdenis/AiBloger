@@ -1,0 +1,83 @@
+@model IReadOnlyList<AiBloger.Core.Entities.Source>
+@{
+	ViewData["Title"] = "Sources";
+}
+<style>
+	h1 { margin: 0 0 16px; }
+	table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+	th, td { border: 1px solid #ddd; padding: 8px; }
+	th { background: #f5f5f5; text-align: left; }
+	tr:nth-child(even) { background: #fafafa; }
+	.section { margin: 24px 0; }
+	.section h2 { margin: 0 0 12px; font-size: 20px; }
+	textarea { width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 8px; }
+	button { padding: 8px 16px; background: #1f2937; color: white; border: none; cursor: pointer; }
+	button:hover { background: #374151; }
+	.message { padding: 12px; margin-bottom: 16px; border-radius: 4px; }
+	.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+	.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+	.example { padding: 8px; background: #f5f5f5; margin: 8px 0; font-family: monospace; font-size: 12px; }
+</style>
+
+<h1>Sources</h1>
+
+@if (ViewBag.Success != null)
+{
+	<div class="message success">@ViewBag.Success</div>
+}
+
+@if (ViewBag.Error != null)
+{
+	<div class="message error">@ViewBag.Error</div>
+}
+
+<div class="section">
+	<h2>Current Sources</h2>
+	@if (Model == null || Model.Count == 0)
+	{
+		<p>No sources found.</p>
+	}
+	else
+	{
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Name</th>
+					<th>URI</th>
+					<th>Created</th>
+					<th>Updated</th>
+				</tr>
+			</thead>
+			<tbody>
+			@foreach (var s in Model)
+			{
+				<tr>
+					<td>@s.Id</td>
+					<td>@s.Name</td>
+					<td><a href="@s.Uri" target="_blank" rel="noopener">@s.Uri</a></td>
+					<td>@s.CreatedAt.ToString("g", System.Globalization.CultureInfo.CurrentCulture)</td>
+					<td>@s.UpdatedAt.ToString("g", System.Globalization.CultureInfo.CurrentCulture)</td>
+				</tr>
+			}
+			</tbody>
+		</table>
+	}
+</div>
+
+<div class="section">
+	<h2>Add Sources</h2>
+	<p>Paste JSON array of sources below and click "Add Sources" to add them to the database.</p>
+	<p><strong>Example format:</strong></p>
+	<div class="example">[
+  { "Name": "openaiblog", "Uri": "https://openai.com/blog/rss/" },
+  { "Name": "deepmindblog", "Uri": "https://deepmind.com/blog/feed/basic/" }
+]</div>
+	
+	<form method="post" asp-controller="Sources" asp-action="Index">
+		<textarea name="jsonInput" placeholder='[{"Name": "sourcename", "Uri": "https://example.com/feed/"}]'></textarea>
+		<br /><br />
+		<button type="submit">Add Sources</button>
+	</form>
+</div>
+

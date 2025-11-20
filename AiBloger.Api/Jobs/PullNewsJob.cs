@@ -1,8 +1,7 @@
 using Quartz;
-using Microsoft.Extensions.Options;
 using AiBloger.Core.Mediator;
-using AiBloger.Api.Configuration;
 using AiBloger.Core.Commands;
+using AiBloger.Core.Queries;
 
 namespace AiBloger.Api.Jobs;
 
@@ -10,23 +9,21 @@ public class PullNewsJob : IJob
 {
     private readonly ILogger<PullNewsJob> _logger;
     private readonly IMediator _mediator;
-    private readonly NewsScraperOptions _options;
 
     public PullNewsJob(
         ILogger<PullNewsJob> logger,
-        IMediator mediator,
-        IOptions<NewsScraperOptions> options)
+        IMediator mediator)
     {
         _logger = logger;
         _mediator = mediator;
-        _options = options.Value;
     }
 
     public async Task Execute(IJobExecutionContext context)
     {
         _logger.LogInformation("Starting news scraping task");
+        var sources = await _mediator.Send(new GetSourcesQuery(), context.CancellationToken);
         // Process news sources
-        foreach (var source in _options.Sources)
+        foreach (var source in sources)
         {
             _logger.LogInformation("Processing source: {SourceName} ({SourceUri})", source.Name, source.Uri);
             try

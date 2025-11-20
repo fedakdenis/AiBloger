@@ -31,10 +31,13 @@ builder.Services.AddHttpClient<IQuartzSchedulerApi, QuartzSchedulerApi>(client =
 builder.Services.AddDbContext<NewsDbContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
+builder.Services.AddScoped<ISourceRepository, SourceRepository>();
 builder.Services.AddScoped<IMediator, Mediator>();
 builder.Services.AddScoped<IRequestHandler<GetNewsQuery, IReadOnlyList<NewsItem>>, GetNewsQueryHandler>();
 builder.Services.AddScoped<IRequestHandler<GetQuartzJobsQuery, IReadOnlyList<QuartzJobInfo>>, GetQuartzJobsFromApiHandler>();
 builder.Services.AddScoped<IRequestHandler<GeneratePostPreviewCommand, PostInfo>, GeneratePostPreviewCommandHandler>();
+builder.Services.AddScoped<IRequestHandler<GetSourcesQuery, IReadOnlyList<Source>>, GetSourcesQueryHandler>();
+builder.Services.AddScoped<IRequestHandler<AddSourcesBatchCommand, int>, AddSourcesBatchCommandHandler>();
 builder.Services.AddScoped<IModelCatalog>(provider =>
 {
 	var apiKey = builder.Configuration["OpenAI:ApiKey"];

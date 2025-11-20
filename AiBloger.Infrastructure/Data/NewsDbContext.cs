@@ -11,6 +11,7 @@ public class NewsDbContext : DbContext
 
     public DbSet<NewsItem> NewsItems { get; set; }
     public DbSet<Post> Posts { get; set; }
+    public DbSet<Source> Sources { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,6 +55,22 @@ public class NewsDbContext : DbContext
             entity.HasIndex(e => e.NewsItemId);
             entity.HasIndex(e => e.CreatedAt);
         });
+
+        // Configuration for Source
+        modelBuilder.Entity<Source>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("NOW()");
+                
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("NOW()");
+                
+            // Unique constraint on Name and Uri to prevent duplicates
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.HasIndex(e => e.Uri).IsUnique();
+        });
     }
 
     public override int SaveChanges()
@@ -88,6 +105,19 @@ public class NewsDbContext : DbContext
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 
         foreach (var entry in postEntries)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = DateTime.UtcNow;
+            }
+            entry.Entity.UpdatedAt = DateTime.UtcNow;
+        }
+
+        // Update timestamps for Source
+        var sourceEntries = ChangeTracker.Entries<Source>()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+        foreach (var entry in sourceEntries)
         {
             if (entry.State == EntityState.Added)
             {
