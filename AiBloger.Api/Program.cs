@@ -8,6 +8,7 @@ using AiBloger.Core.Interfaces;
 using AiBloger.Api.Configuration;
 using AiBloger.Api.Jobs;
 using AiBloger.Api.Queries;
+using AiBloger.Api.Extensions;
 using AiBloger.Core.Entities;
 using AiBloger.Core.Queries;
 using AiBloger.Core.Handlers;
@@ -46,6 +47,9 @@ builder.Services.Configure<NewsScraperOptions>(builder.Configuration.GetSection(
 builder.Services.AddHttpClient<INewsScraperService, NewsScraperService>();
 builder.Services.AddScoped<INewsScraperService, NewsScraperService>();
 
+// Register continuous scraping system
+builder.Services.AddContinuousScraping(builder.Configuration);
+
 // Register OpenAI service
 builder.Services.AddScoped<IAuthorService>(provider =>
 {
@@ -63,17 +67,17 @@ builder.Services.AddScoped<IBlogerService>(provider =>
     var botToken = builder.Configuration["Telegram:BotToken"];
     var chatId = builder.Configuration["Telegram:ChatId"];
     var logger = provider.GetRequiredService<ILogger<TelegramService>>();
-    
+
     if (string.IsNullOrWhiteSpace(botToken))
     {
         throw new InvalidOperationException("Telegram Bot Token not found in configuration. Add 'Telegram:BotToken' to appsettings.json");
     }
-    
+
     if (string.IsNullOrWhiteSpace(chatId))
     {
         throw new InvalidOperationException("Telegram Chat ID not found in configuration. Add 'Telegram:ChatId' to appsettings.json");
     }
-    
+
     return new TelegramService(botToken, chatId, logger);
 });
 

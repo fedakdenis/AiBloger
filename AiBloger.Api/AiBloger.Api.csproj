@@ -18,7 +18,7 @@
     <PackageReference Include="Quartz.AspNetCore" Version="3.14.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\AiBloger.Core\AiBloger.Core.csproj" />
     <ProjectReference Include="..\AiBloger.Infrastructure\AiBloger.Infrastructure.csproj" />
