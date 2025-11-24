@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AiBloger.Core.Enums;
 
 namespace AiBloger.Core.Entities;
 
@@ -20,6 +21,14 @@ public class NewsItem
     public string Author { get; set; } = string.Empty;
     
     public string Category { get; set; } = string.Empty;
+
+    public NewsItemStatus Status { get; set; } = NewsItemStatus.Pending;
+
+    public int RetryCount { get; set; } = 0;
+
+    public string? ScrapedContent { get; set; }
+
+    public string? ErrorMessage { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

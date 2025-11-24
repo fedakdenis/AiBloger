@@ -27,11 +27,16 @@ public class NewsDbContext : DbContext
                 
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("NOW()");
+            
+            entity.Property(e => e.Status)
+                .HasDefaultValue(Core.Enums.NewsItemStatus.Pending);
                 
             // Indexes for query optimization
             entity.HasIndex(e => e.Source);
             entity.HasIndex(e => e.PublishDate);
             entity.HasIndex(e => e.Url).IsUnique();
+            entity.HasIndex(e => e.Status); // Index for queue queries
+            entity.HasIndex(e => new { e.Status, e.CreatedAt }); // Composite index for efficient queue processing
         });
 
         // Configuration for Post
