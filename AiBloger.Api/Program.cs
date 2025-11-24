@@ -12,6 +12,8 @@ using AiBloger.Api.Extensions;
 using AiBloger.Core.Entities;
 using AiBloger.Core.Queries;
 using AiBloger.Core.Handlers;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -124,6 +126,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddPrometheusExporter()
+        .AddAspNetCoreInstrumentation()
+        .AddRuntimeInstrumentation()
+    );
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -157,5 +167,7 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 }
+
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();
