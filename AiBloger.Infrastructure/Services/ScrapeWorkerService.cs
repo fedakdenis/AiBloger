@@ -18,6 +18,7 @@ public sealed class ScrapeWorkerService : BackgroundService
     private readonly IContentScraperService _contentScraper;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<ScrapeWorkerService> _logger;
+    private readonly IScrapingMetrics _metrics;
     private readonly ScrapeWorker _options;
 
     public ScrapeWorkerService(
@@ -26,6 +27,7 @@ public sealed class ScrapeWorkerService : BackgroundService
         IContentScraperService contentScraper,
         IServiceScopeFactory scopeFactory,
         ILogger<ScrapeWorkerService> logger,
+        IScrapingMetrics metrics,
         IOptions<ScrapeWorker> options)
     {
         _jobQueue = jobQueue;
@@ -33,6 +35,7 @@ public sealed class ScrapeWorkerService : BackgroundService
         _contentScraper = contentScraper;
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _metrics = metrics;
         _options = options.Value;
 
         if (_options.Count <= 0)
@@ -73,10 +76,15 @@ public sealed class ScrapeWorkerService : BackgroundService
                 {
                     // Dequeue job (blocks asynchronously until job is available)
                     var job = await _jobQueue.DequeueAsync(cancellationToken);
+                    var queueDuration = DateTime.UtcNow - job.EnqueuedAt;
                     
                     _logger.LogDebug(
                         "Worker {WorkerId} picked up job for source {SourceName} ({SourceId}): {Url}",
                         workerId, job.SourceName, job.SourceId, job.Url);
+
+                    _metrics.ScrapeJobQueueWaitDurationMs.Record(
+                        queueDuration.TotalMilliseconds,
+                        new KeyValuePair<string, object?>("source_name", job.SourceName));
 
                     // Handle the job
                     await HandleJobAsync(job, workerId, cancellationToken);
@@ -114,7 +122,12 @@ public sealed class ScrapeWorkerService : BackgroundService
             
             var host = new Uri(job.Url).Host;
             var rateLimitKey = Math.Abs(host.GetHashCode() % 100);
+            var startAcquire = DateTime.UtcNow;
             await _rateLimiter.AcquireAsync(rateLimitKey, cancellationToken);
+            var acquireDuration = DateTime.UtcNow - startAcquire;
+
+            _metrics.RateLimiterWaitDurationMs.Record(acquireDuration.TotalMilliseconds,
+                new KeyValuePair<string, object?>("source", job.SourceName));
 
             _logger.LogDebug(
                 "Worker {WorkerId} acquired rate limit for NewsItem #{NewsItemId}", 
@@ -136,6 +149,14 @@ public sealed class ScrapeWorkerService : BackgroundService
                     duration.TotalMilliseconds,
                     result.Title,
                     result.Content.Length);
+
+                _metrics.ScrapeJobsCompleted.Add(1,
+                    new KeyValuePair<string, object?>("source_name", job.SourceName),
+                    new KeyValuePair<string, object?>("result", "success"));
+
+                _metrics.ScrapeJobDurationMs.Record(duration.TotalMilliseconds,
+                    new KeyValuePair<string, object?>("source_name", job.SourceName),
+                    new KeyValuePair<string, object?>("result", "success"));
 
                 // Обновляем статус на Scraped
                 await newsRepository.UpdateStatusAsync(
@@ -195,6 +216,10 @@ public sealed class ScrapeWorkerService : BackgroundService
                 workerId, 
                 newsItemId,
                 duration.TotalMilliseconds);
+
+            _metrics.ScrapeJobDurationMs.Record(duration.TotalMilliseconds,
+                new KeyValuePair<string, object?>("source_name", job.SourceName),
+                new KeyValuePair<string, object?>("result", "error"));
                 
             // При критической ошибке пытаемся пометить как Failed
             try
