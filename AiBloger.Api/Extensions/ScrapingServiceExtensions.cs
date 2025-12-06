@@ -25,6 +25,9 @@ public static class ScrapingServiceExtensions
 
         services.AddSingleton<IRateLimiterService, RateLimiterService>();
 
+        // Register metrics
+        services.AddSingleton<IScrapingMetrics, ScrapingMetrics>();
+
         // Register content scraper with HttpClient
         services.AddHttpClient<IContentScraperService, ContentScraperService>(client =>
         {

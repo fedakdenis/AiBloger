@@ -128,7 +128,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddOpenTelemetry()
     .WithMetrics(metrics => metrics
-        .AddAspNetCoreInstrumentation()
+        .AddMeter("AiBloger.Scraping")
         .AddPrometheusExporter()
         .AddAspNetCoreInstrumentation()
         .AddRuntimeInstrumentation()
